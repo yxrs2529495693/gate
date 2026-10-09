@@ -1,5 +1,6 @@
 name: Clean VPN Gate Runs
 on:
+  # UTC22点 = 北京时间 06:00
   schedule:
     - cron: "0 22 * * *"
   workflow_dispatch:
@@ -13,8 +14,8 @@ jobs:
     env:
       TOKEN: ${{ secrets.PAT_TOKEN }}
       REPO: yxrs2529495693/gate
-      WF_ID_VPNCHECK: 【填入该仓库 VPN Gate Node Check 的ID】
-      WF_ID_SELF: 【填入本Clean工作流自身ID】
+      WF_ID_VPNCHECK: 377497676
+      WF_ID_SELF: 379295501
     steps:
       - name: Clean workflow runs
         run: |
