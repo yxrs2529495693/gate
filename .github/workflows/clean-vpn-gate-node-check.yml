@@ -1,0 +1,67 @@
+name: Clean VPN Gate Runs
+on:
+  schedule:
+    - cron: "0 22 * * *"
+  workflow_dispatch:
+
+jobs:
+  clean:
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+      contents: read
+    env:
+      TOKEN: ${{ secrets.PAT_TOKEN }}
+      REPO: yxrs2529495693/gate
+      WF_ID_VPNCHECK: 【填入该仓库 VPN Gate Node Check 的ID】
+      WF_ID_SELF: 【填入本Clean工作流自身ID】
+    steps:
+      - name: Clean workflow runs
+        run: |
+          # ========== VPN Gate Node Check：保留最新1条，其余删除 ==========
+          echo "===== Processing VPN Gate Node Check ====="
+          VPN_RAW=$(curl -s \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version:2022-11-28" \
+            -H "Authorization: token $TOKEN" \
+            "https://api.github.com/repos/$REPO/actions/workflows/$WF_ID_VPNCHECK/runs?per_page=100")
+          VPN_IDS=$(echo "$VPN_RAW" | jq -r '.workflow_runs | map(select(.conclusion != null)) | sort_by(-(.created_at | fromdateiso8601)) | .[].id')
+          VPN_ARR=($VPN_IDS)
+          VPN_LEN=${#VPN_ARR[@]}
+          echo "VPN Gate 已完成记录总数: $VPN_LEN"
+          if (( VPN_LEN > 1 )); then
+            for ((i=1; i<VPN_LEN; i++)); do
+              rid=${VPN_ARR[$i]}
+              echo "Delete VPN run id: $rid"
+              curl -s -X DELETE \
+                -H "Accept: application/vnd.github+json" \
+                -H "X-GitHub-Api-Version:2022-11-28" \
+                -H "Authorization: token $TOKEN" \
+                "https://api.github.com/repos/$REPO/actions/runs/$rid"
+              sleep 0.3
+            done
+          else
+            echo "VPN Gate 记录数量≤1，无需删除"
+          fi
+
+          # ========== Clean自身工作流：全部删除已完成run ==========
+          echo -e "\n===== Processing Clean VPN Gate Runs (self) ====="
+          SELF_RAW=$(curl -s \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version:2022-11-28" \
+            -H "Authorization: token $TOKEN" \
+            "https://api.github.com/repos/$REPO/actions/workflows/$WF_ID_SELF/runs?per_page=100")
+          SELF_IDS=$(echo "$SELF_RAW" | jq -r '.workflow_runs | map(select(.conclusion != null)) | sort_by(-(.created_at | fromdateiso8601)) | .[].id')
+          SELF_ARR=($SELF_IDS)
+          SELF_LEN=${#SELF_ARR[@]}
+          echo "Clean工作流已完成记录总数: $SELF_LEN"
+          for rid in "${SELF_ARR[@]}"; do
+            echo "Delete self run id: $rid"
+            curl -s -X DELETE \
+              -H "Accept: application/vnd.github+json" \
+              -H "X-GitHub-Api-Version:2022-11-28" \
+              -H "Authorization: token $TOKEN" \
+              "https://api.github.com/repos/$REPO/actions/runs/$rid"
+            sleep 0.3
+          done
+          echo -e "\n✅ 清理执行完毕"
