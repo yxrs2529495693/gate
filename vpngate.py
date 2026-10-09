@@ -40,7 +40,7 @@ VPNGATE_MIRROR = os.environ.get(
     "VPNGATE_MIRROR",
     "https://raw.githubusercontent.com/fdciabdul/Vpngate-Scraper-API/main/json/data.json",
 )
-WORKER_CHECK_URL = os.environ.get("CHECK_WORKER", "https://你的域名/check?sstp=vpn:vpn@")
+WORKER_CHECK_URL = os.environ.get("CHECK_WORKER", "https://check.8399.kdns.fr/check?sstp=vpn:vpn@")
 CONCURRENCY = max(1, int(os.environ.get("CHECK_CONCURRENCY", "32")))
 CHECK_TIMEOUT = float(os.environ.get("CHECK_TIMEOUT", "90"))
 MAX_CHECK_NODES = int(os.environ.get("MAX_CHECK_NODES", "0"))
@@ -298,8 +298,8 @@ EDGE_HOSTS = [
     for h in os.environ.get(
         "EDGE_HOSTS",
          "saas.sin.fan:443,cdn.204910.best:443,www.mfyx.cn:443,bbs.alipansou.com:443,cdn.ctn32.us.kg:443,shop.glico.com:443,www.dg22.top,"
-         "dongbanghong.com:443,ex.warspite.dpdns.org:443,hardware.shopify.com:443,mvnrepository.com:443,prompt.gzcrtw.com:443,"
-        "registry.yarnpkg.com:443,registry.npmjs.org:443,shop.glico.com:443,store.sony.com.sg:443,www.akasantech.com:443,www.ox.ac.uk:443",
+         "dongbanghong.com:443,www.giannidelprete.it:443,hardware.shopify.com:443,mvnrepository.com:443,www.decathlon.com:443,"
+        "registry.yarnpkg.com:443,registry.npmjs.org:443,shop.glico.com:443,store.sony.com.sg:443,www.vastnovel.com:443,www.ox.ac.uk:443",
     ).split(",")
     if h.strip()
 ]
